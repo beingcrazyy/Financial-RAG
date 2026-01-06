@@ -35,5 +35,5 @@ jobs:
             --source . \
             --region $REGION \
             --project $PROJECT_ID \
-            --allow-unauthenticated
+            --allow-unauthenticated \
             --set-env-vars OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},MODEL_NAME=${{ secrets.MODEL_NAME }},TEMPERATURE=${{ secrets.TEMPERATURE }}
