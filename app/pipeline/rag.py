@@ -19,8 +19,11 @@ def answer(question : str):
             "source" : []
         }
 
-    doc_path = "doc/MicrosoftAnnualReport.pdf"
-    vs = build_vectorstore(doc_path)
+    doc1_path = "doc/MicrosoftAnnualReport.pdf"
+    doc2_path = "doc/GoogleAnnualReport.pdf"
+    vs = build_vectorstore(
+        [doc1_path, doc2_path]
+        )
 
     docs = vs.similarity_search(question, k= 5)
 
