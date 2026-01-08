@@ -24,16 +24,15 @@ DECISION_PROMPT = """
     You are a decision-making agent.
 
     Your task:
-    Decide whether the user's question requires searching the provided financial documents.
+    Decide whether the user's question is about these financial documents {document_metadata}
 
     Return ONLY one word:
-    - RETRIEVE
-    - REFUSE
+    - YES
+    - NO
 
     Rules:
-    - RETRIEVE if the question asks about financial data, numbers, risks, statements, or facts likely in the report.
-    - REFUSE if the question is general knowledge, opinion-based, or unrelated to the document.
-
+    - YES if the question asks about financial data, numbers, risks, statements, facts or understanding the finance likely in the report.
+    - NO if the question is general knowledge or outside the scope of finance 
     Question:
     {question}
 """

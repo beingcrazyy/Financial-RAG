@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from app.agent.prompt import VERIFY_PROMPT
+from app.agent.prompts import VERIFY_PROMPT
 from app.config.settings import Model, Temprature
 
 def verify_output(answer: str, context : str):

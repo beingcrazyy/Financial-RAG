@@ -8,20 +8,26 @@ import os
 # GETTING THE CHUNKS OF THE DOCUMENT 
 #----------------------------------------------------------
 
-file_path = Path("doc/MicrosoftAnnualReport.pdf")
-
-def load_and_chunk_documents(file_path : str):
+def load_and_chunk_documents(files : list):
 
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size = 1000,
         chunk_overlap = 200
     )
 
-    loader = PyPDFLoader(file_path)
+    all_docs = []
 
-    docs = loader.load()
+    for file in files:
+        file_path = Path(file)
+        loader = PyPDFLoader(file_path)
+        docs = loader.load()
 
-    chunks = text_splitter.split_documents(docs)
+        for d in docs:
+            d.metadata["source_file"] = file
+
+        all_docs.extend(docs)
+
+    chunks = text_splitter.split_documents(all_docs)
 
     # pprint.pp(docs[0].metadata)
     # print(docs[3].page_content)

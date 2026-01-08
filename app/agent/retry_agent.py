@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from app.agent.prompt import RETRY_FIX_PROMPT
+from app.agent.prompts import RETRY_FIX_PROMPT
 from app.config.settings import Model, Temprature
 
 def retry(answer : str, context : str):

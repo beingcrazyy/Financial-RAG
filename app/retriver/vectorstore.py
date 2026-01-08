@@ -9,8 +9,8 @@ load_dotenv()
 #----------------------------------------------------------
 
 
-def build_vectorstore(doc_path: str):
-    chunks = load_and_chunk_documents(doc_path)
+def build_vectorstore(files : list):
+    chunks = load_and_chunk_documents(files)
 
     embeddings = OpenAIEmbeddings()
     vectorstore = FAISS.from_documents(chunks, embeddings)

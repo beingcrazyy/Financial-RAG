@@ -13,3 +13,4 @@ sse_starlette
 
 faiss-cpu
 pypdf
+pypdf2

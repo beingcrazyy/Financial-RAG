@@ -1,8 +1,8 @@
 from langchain_openai import ChatOpenAI
 from app.config.settings import Model, Temprature
-from app.agent.prompt import DECISION_PROMPT
+from app.agent.prompts import DECISION_PROMPT
 
-def decide_retrival_or_refusal(question : str):
+def decide_retrival_or_refusal(question : str, metadata: str):
 
     llm = ChatOpenAI(
         model= Model,
@@ -11,6 +11,7 @@ def decide_retrival_or_refusal(question : str):
 
     response = llm.invoke(
         DECISION_PROMPT.format(
+            document_metadata = metadata,
             question = question
         )
     )
@@ -19,8 +20,8 @@ def decide_retrival_or_refusal(question : str):
 
     # print(decision)
 
-    if decision not in ("RETRIEVE", "REFUSE"):
-        return "REFUSE"
+    if decision not in ("YES", "NO"):
+        return "NO"
 
     return decision
 
