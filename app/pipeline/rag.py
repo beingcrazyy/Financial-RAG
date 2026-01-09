@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 from app.config.settings import Model, Temprature
 from app.agent.prompts import RAG_PROMPT
 from app.agent.decision_agent import decide_retrival_or_refusal
-from app.agent.verify_agent import verify_output
+from FinancialRAG.app.agent.answer_verification_agent import verify_output
 from app.agent.retry_agent import retry
 
 MAX_RETRY = 2
@@ -13,7 +13,7 @@ def answer(question : str):
     doc1_path = "doc/MicrosoftAnnualReport.pdf"
     doc2_path = "doc/GoogleAnnualReport.pdf"
     vs = build_vectorstore(
-        
+
         [doc1_path, doc2_path]
         )
 
