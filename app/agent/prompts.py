@@ -50,6 +50,19 @@ QUESTION_UNDERSTANDING_PROMPT = """
     - time_scope: year or period if explicitly stated, otherwise null
     - retrieval_queries: 1 to 3 short, focused search queries optimized for document retrieval
 
+    **Conditions** 
+    LOOKUP:
+    - The user asks for a specific fact, number, or statement
+
+    COMPARISON:
+    - The user asks to compare two or more entities
+
+    SUMMARY:
+    - The user asks for a condensed overview of a document or topic
+
+    EXPLORATION:
+    - The user asks broad, open-ended, or trend-based questions
+
     Rules:
     - Do NOT answer the question.
     - Do NOT infer entities or facts not explicitly mentioned.

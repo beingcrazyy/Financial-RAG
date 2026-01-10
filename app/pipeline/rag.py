@@ -1,82 +1,111 @@
 from app.retriver.vectorstore import build_vectorstore
 from langchain_openai import ChatOpenAI
 from app.config.settings import Model, Temprature
-from app.agent.prompts import RAG_PROMPT
-from app.agent.decision_agent import decide_retrival_or_refusal
-from FinancialRAG.app.agent.answer_verification_agent import verify_output
+from app.agent.prompts import ANSWER_GENERATION_PROMPT
+from app.agent.question_understanding_agent import understand_question
+from app.agent.question_verification_agent import verify_question
+from app.agent.answer_verification_agent import verify_output
 from app.agent.retry_agent import retry
 
 MAX_RETRY = 2
 
+def build_context(docs):
+    return "\n\n".join(d.page_content for d in docs)
+
+def extract_sources(docs):
+    sources = []
+    for d in docs:
+        sources.append({
+            "source": d.metadata.get("source"),
+            "page": d.metadata.get("page"),
+            "entity": d.metadata.get("entities"),
+            "document_type": d.metadata.get("document_type")
+        })
+    return sources
+
+def dedupe_sources(sources):
+    unique = {}
+    for s in sources:
+        key = (s["source"], s["page"])
+        unique[key] = s
+    return list(unique.values())
+
 def answer(question : str):
 
-    doc1_path = "doc/MicrosoftAnnualReport.pdf"
-    doc2_path = "doc/GoogleAnnualReport.pdf"
-    vs = build_vectorstore(
+    docs = ["doc/MicrosoftAnnualReport.pdf","doc/GoogleAnnualReport.pdf"]
 
-        [doc1_path, doc2_path]
-        )
+    vector_stores = []
 
-    docs = vs.similarity_search(question, k= 5)
+    for d in docs:
+        vs = build_vectorstore(d)
+        vector_stores.append(vs)
 
-    context = "\n\n".join(
-        d.page_content for d in docs
-    )
+    question_status = verify_question(question)
 
-    print(d.page_content for d in docs)
+    entity_vs_map = {
+        "Microsoft" : vector_stores[0],
+        "Google" : vector_stores[1]
+    }
 
-    # metadata = "\n\n".join(
-    #     d.metadata for d in docs
-    # )
+    if question_status == "OUT_OF_SCOPE" :
+        return "Sorry! The question you are asking is out of scope for Financial RAG"
 
-    metadata = "Google financial document Microsoft financial document"
+    question_spec = understand_question(question)
 
-    decision = decide_retrival_or_refusal(question,metadata)
-    print (f"The decision is {decision}")
+    intent = question_spec.intent
+    entities = question_spec.entities["companies"]
+    retrieval_queries = question_spec.retrieval_queries
 
-    if decision == "NO" :
-        return {
-            "answer" : "Sorry! This is not a related question",
-            "source" : []
-        }
+    retrived_docs = []
+
+    if intent == "COMPARISON":
+        for entity in entities:
+            vs = entity_vs_map.get(entity)
+            if not vs:
+                continue
+
+            for q in retrieval_queries:
+                docs = vs.similarity_search(q, k=3)
+                retrived_docs.extend(docs)
+    else :
+        for vs in vector_stores:
+            for q in retrieval_queries:
+                docs = vs.similarity_search(q, k=2)
+                retrived_docs.extend(docs)
+
+    unique_docs = {}
+    for d in retrived_docs:
+        key = d.metadata.get("source"), d.metadata.get("page")
+        unique_docs[key] = d
+
+    retrived_docs = list[unique_docs.values()]
+
+    context = build_context(retrived_docs)
 
     llm = ChatOpenAI(
-        model= Model,
-        temperature= Temprature
+        model = Model,
+        temprature = Temprature
     )
 
+
     response = llm.invoke(
-        RAG_PROMPT.format(
-            context = context,
-            question = question
+        ANSWER_GENERATION_PROMPT.format(
+            question = question,
+            context = context
         )
     )
 
-    answer = response.content
-
-    verification = verify_output(answer, context)
-
-    print(verification)
-
-    if verification == "FAIL":
-        for i in range (MAX_RETRY):
-            print(f"Trying {i} time" )
-            answer = retry(answer, context)
-            verification = verify_output(answer, context)
-            if verification == "PASS" :
-                break
-    
-    if verification == "FAIL":
-        return {
-            "answer" : answer,
-            "source" : [d.page_content for d in docs]
-        }
-
-
-    return {
-        "answer" : answer,
-        "source" : [d.page_content for d in docs]
+    answer =  {
+    "answer": response.content,
+    "sources": dedupe_sources(extract_sources(retrived_docs))
     }
+
+    return answer
+
+
+
+
+
 
 if __name__ == "__main__":
     q = "compare the revenue of microsoft and google"

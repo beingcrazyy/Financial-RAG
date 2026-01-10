@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from app.agent.prompts import VERIFY_PROMPT
+from app.agent.prompts import ANSWER_VERIFICATION_PROMPT
 from app.config.settings import Model, Temprature
 
 def verify_output(answer: str, context : str):
@@ -10,7 +10,7 @@ def verify_output(answer: str, context : str):
     )
 
     response = llm.invoke(
-        VERIFY_PROMPT.format(
+        ANSWER_VERIFICATION_PROMPT.format(
             answer = answer,
             context = context
         )
@@ -18,7 +18,7 @@ def verify_output(answer: str, context : str):
 
     verification = response.content.strip().upper()
 
-    if verification not in ("PASS", "FAIL"):
+    if verification not in ("PASS", "FAIL", "PARTIAL"):
         return "FAIL"
     
     return verification

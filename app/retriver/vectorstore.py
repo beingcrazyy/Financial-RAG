@@ -1,6 +1,6 @@
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
-from app.ingest.loader import load_and_chunk_documents
+from app.ingest.loader import load_and_chunk_document
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -9,8 +9,8 @@ load_dotenv()
 #----------------------------------------------------------
 
 
-def build_vectorstore(files : list):
-    chunks = load_and_chunk_documents(files)
+def build_vectorstore(doc_path : str):
+    chunks = load_and_chunk_document(doc_path)
 
     embeddings = OpenAIEmbeddings()
     vectorstore = FAISS.from_documents(chunks, embeddings)
