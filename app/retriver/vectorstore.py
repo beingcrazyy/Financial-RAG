@@ -2,20 +2,32 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from app.ingest.loader import load_and_chunk_document
 from dotenv import load_dotenv
+import os
 load_dotenv()
 
 #----------------------------------------------------------
 # CREATING THE VECTORS STORE (FAISS) FROM THE CHUNKS USING OPEN AI EMBEDDINGS  
 #----------------------------------------------------------
 
+def build_vectorstore(doc_path: str):
 
-def build_vectorstore(doc_path : str):
-    chunks = load_and_chunk_document(doc_path)
+    index_path = f"vectorstores/{os.path.basename(doc_path)}"
 
     embeddings = OpenAIEmbeddings()
-    vectorstore = FAISS.from_documents(chunks, embeddings)
 
-    return vectorstore
+    if os.path.exists(index_path):
+        return FAISS.load_local(
+            index_path,
+            embeddings,
+            allow_dangerous_deserialization=True
+        )
+
+    docs = load_and_chunk_document(doc_path)
+    vs = FAISS.from_documents(docs, embeddings)
+
+    vs.save_local(index_path)
+    return vs
+
 
 #----------------------------------------------------------
 # WE CAN USE THE SIMILARITY SEARCH FOR ANY VECTOR STORE  

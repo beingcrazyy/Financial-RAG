@@ -1,8 +1,11 @@
 from langchain_openai import ChatOpenAI
 from app.agent.prompts import DOCUMENT_METADATA_EXTRACTION_PROMPT
 from app.config.settings import Model, Temprature
+from app.helper.clean_llm_json import clean_json
 from typing import List, Optional
+import os
 from pydantic import BaseModel
+import re
 
 
 class DocumentMetadata(BaseModel):
@@ -11,11 +14,11 @@ class DocumentMetadata(BaseModel):
     entities: List[str]
     time_scope: Optional[str]
 
-def extract_metadata(text : str) -> DocumentMetadata:
+def extract_metadata(text : str) :
 
     llm = ChatOpenAI(
-        model= Model,
-        temperature= Temprature
+        model = Model,
+        temperature = Temprature,
     )
 
     doc_context = text[:3000]
@@ -26,4 +29,9 @@ def extract_metadata(text : str) -> DocumentMetadata:
         )
     )
 
-    return DocumentMetadata.model_validate_json(response.content)
+    cleaned_response = clean_json(response.content)
+
+    # return response
+    return DocumentMetadata.model_validate_json(cleaned_response)
+
+

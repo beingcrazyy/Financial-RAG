@@ -6,7 +6,7 @@ def verify_question(question: str):
 
     llm = ChatOpenAI(
         model = Model,
-        temprature = Temprature
+        temperature= Temprature
     )
 
 

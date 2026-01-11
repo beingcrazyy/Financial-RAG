@@ -53,7 +53,7 @@ def answer(question : str):
     question_spec = understand_question(question)
 
     intent = question_spec.intent
-    entities = question_spec.entities["companies"]
+    entities = question_spec.entities
     retrieval_queries = question_spec.retrieval_queries
 
     retrived_docs = []
@@ -78,20 +78,23 @@ def answer(question : str):
         key = d.metadata.get("source"), d.metadata.get("page")
         unique_docs[key] = d
 
-    retrived_docs = list[unique_docs.values()]
+    retrived_docs = list(unique_docs.values())
+    print("the type of retived docs is :", type(retrived_docs))
+
+    # print(retrived_docs[1])
 
     context = build_context(retrived_docs)
 
     llm = ChatOpenAI(
         model = Model,
-        temprature = Temprature
+        temperature = Temprature
     )
 
 
     response = llm.invoke(
         ANSWER_GENERATION_PROMPT.format(
             question = question,
-            context = context
+            retrieved_context = context
         )
     )
 
@@ -108,14 +111,14 @@ def answer(question : str):
 
 
 if __name__ == "__main__":
-    q = "compare the revenue of microsoft and google"
+    q = "Explain the investments of google and microsoft Giants and what we can derive from it that world is going in which direction"
     result = answer(q)
 
     print("ANSWER:")
     print(result["answer"])
 
     print("\nSOURCES:")
-    for s in result["source"]:
+    for s in result["sources"]:
         print(s)
 
 
