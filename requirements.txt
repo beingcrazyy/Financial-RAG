@@ -3,6 +3,11 @@ langchain-core
 langchain-openai
 langchain-community
 
+<<<<<<< HEAD
+=======
+llama-parse
+
+>>>>>>> be1ac59 (Add annual reports and vector store indices for Microsoft and Google)
 langserve
 fastapi
 uvicorn
@@ -13,4 +18,8 @@ sse_starlette
 
 faiss-cpu
 pypdf
+<<<<<<< HEAD
 pypdf2
+=======
+pypdf2
+>>>>>>> be1ac59 (Add annual reports and vector store indices for Microsoft and Google)
